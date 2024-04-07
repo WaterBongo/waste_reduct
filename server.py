@@ -63,7 +63,7 @@ def stock(stock):
 
 @app.route("/news/<company>")
 def news(company):
-    data = requests.get(f'https://newsapi.org/v2/everything?q={company}&from=2024-03-07&sortBy=publishedAt&apiKey=6900242d44ec47839ca83eb1a31f32dd')
+    data = requests.get(f'https://newsapi.org/v2/everything?q={company}&from=2024-03-07&sortBy=publishedAt&apiKey=6900242d44ec47839ca83eb1a31f32dd&language=en')
     
     descriptions = []
     for i in data['articles']:
