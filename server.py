@@ -62,11 +62,6 @@ def stock(stock):
         "one_week_ago": price_one_week_ago
     }
 
-@app.route("/news/<company>")
-def news(company):
-    realdata = requests.get(f'http://localhost:8052/cum/{company}').json()
-    return realdata
-
 @app.route("/financial_status/<stock>")
 def financial_status(stock):
     url = f'https://www.alphavantage.co/query?function=INCOME_STATEMENT&symbol={stock}&apikey={ki_key}'
