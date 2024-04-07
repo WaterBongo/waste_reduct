@@ -9,7 +9,7 @@ app = Flask(__name__)
 info_used = {
 }
 
-ki_key = "0PQBYSB04H85Z6F0"
+ki_key = "DTQAY86C3FCT0343"
 
 # Financial data for the company
 # Calculation functions
