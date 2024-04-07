@@ -36,7 +36,7 @@ def calculate_ebitda_margin(data):
 @app.route("/stock/<stock>")
 def stock(stock):
 
-    ts = TimeSeries(key='8S8UVXUIR5WZP5P9', output_format='pandas')
+    ts = TimeSeries(key='QYKD6R0WT7S6G9WK', output_format='pandas')
 
     # Get daily historical data
     daily_data, meta_data = ts.get_daily(symbol=stock, outputsize='full')
@@ -93,10 +93,9 @@ def news(company):
 
 @app.route("/financial_status/<stock>")
 def financial_status(stock):
-    url = f'https://www.alphavantage.co/query?function=INCOME_STATEMENT&symbol={stock}&apikey=EDSFR9WCYS1QI8P6'
+    url = f'https://www.alphavantage.co/query?function=INCOME_STATEMENT&symbol={stock}&apikey=DTO0T1HGHV8QY514'
     r = requests.get(url)
     data = r.json()
-    print(data)
     financial_data = data['annualReports'][0]
     gross_profit_margin = calculate_gross_profit_margin(financial_data)
     operating_margin = calculate_operating_margin(financial_data)
@@ -122,7 +121,7 @@ def financial_status(stock):
 def stability(company,app,nasaq):
     he = '{\n  "model": "mistral",\n  "prompt":"'
 
-    company_overview = requests.get(f"https://www.alphavantage.co/query?function=OVERVIEW&symbol={nasaq}&apikey=9AQBP48DOAXMBGC1").json()['Description']
+    company_overview = requests.get(f"https://www.alphavantage.co/query?function=OVERVIEW&symbol={nasaq}&apikey=CEC3IF1YRNN5ZXV5").json()['Description']
     prompt = f'I currently work at {company}, the product i work on is {app}, do i have a stable position? a brief description of {company} {company_overview} response in a json where one key is stability and the value is either true or false and another key called explnation and explain why or why not there is no job security'
 
     he = he+prompt
@@ -130,17 +129,9 @@ def stability(company,app,nasaq):
     headers = {
     'Content-Type': 'application/x-www-form-urlencoded',
 }
-    response = requests.post('http://100.111.60.93:11434/api/generate', headers=headers, data=he)
-    print(response.json())
+    response = requests.post('http://localhost:11434/api/generate', headers=headers, data=he)
     return response.json()
 
 
 if __name__ == '__main__':
     app.run('0.0.0.0',port=8080)
-
-
-#https://newsapi.org/v2/everything?q=tesla&from=2024-03-07&sortBy=publishedAt&apiKey=API_KEY
-#https://newsapi.org/v2/everything?q=apple&from=2024-03-07&sortBy=publishedAt&apiKey=6900242d44ec47839ca83eb1a31f32dd
-#https://newsapi.org/v2/top-headlines?country=us&category=technology&apiKey=6900242d44ec47839ca83eb1a31f32dd
-
-#https://newsapi.org/v2/everything?q=apple&from=2024-03-07&sortBy=publishedAt&apiKey=6900242d44ec47839ca83eb1a31f32dd&language=en

@@ -1,16 +1,6 @@
 import streamlit as st
-
-col1, col2, col3 = st.columns(3)
-
-with col1:
-   cont = st.container(border=True)
-   st.header("A cat")
-   st.image("https://static.streamlit.io/examples/cat.jpg")
-
-with col2:
-   st.header("A dog")
-   st.image("https://static.streamlit.io/examples/dog.jpg")
-
-with col3:
-   st.header("An owl")
-   st.image("https://static.streamlit.io/examples/owl.jpg")
+import streamlit as st
+import requests
+# Connect to the MongoDB database
+data = requests.get("http://100.111.60.93:8052/gatodb")
+print(data.json())

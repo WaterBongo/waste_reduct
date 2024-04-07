@@ -19,6 +19,7 @@ if st.button("Submit"):
     with st.status("Scraping Data....", expanded=True) as status:
         st.write("Searching for data...")
         r = requests.get("http://localhost:8080/stock/"+NASAQ)
+        print(r.text)
         st.write("Stock Data found")
         st.write("Searching for financial status...")
         r1 = requests.get("http://localhost:8080/financial_status/"+NASAQ).json()
@@ -26,8 +27,7 @@ if st.button("Submit"):
         st.write("Searching for stability data (Patience!)...")
         r2 = requests.get("http://localhost:8080/product_stabilitiy/"+company+"/"+name+"/"+NASAQ).json()
     st.success('Quarterly Results Found!', icon="✅")
-    
-    print(r.json())
+    print(r.text)
     data = r.json()
     payload = {
         "name": name,
