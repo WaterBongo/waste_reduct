@@ -3,9 +3,13 @@ from flask import request
 from alpha_vantage.timeseries import TimeSeries
 from alpha_vantage.timeseries import TimeSeries
 import datetime,requests
+from transformers import pipeline
+
 app = Flask(__name__)
 info_used = {
 }
+
+pipe = pipeline("text-classification", model="mr8488/distilroberta-finetuned-financial-news-sentiment-analysis-v2")
 
 
 # Financial data for the company
@@ -59,7 +63,33 @@ def stock(stock):
 
 @app.route("/news/<company>")
 def news(company):
-    r = requests.get(f'https://newsapi.org/v2/everything?q={company}&from=2024-03-07&sortBy=publishedAt&apiKey=6900242d44ec47839ca83eb1a31f32dd')
+    data = requests.get(f'https://newsapi.org/v2/everything?q={company}&from=2024-03-07&sortBy=publishedAt&apiKey=6900242d44ec47839ca83eb1a31f32dd')
+    
+    descriptions = []
+    for i in data['articles']:
+        if not (i["description"] == "[Removed]" or i["description"] == None):
+            descriptions.append(i["description"])
+    
+    results = pipe(descriptions)
+    sum = 0
+    cnt = 0
+    for res in results:
+        if res["label"] == "positive":
+            sum += res["score"]
+            cnt+=1
+        elif res["label"] == "negative":
+            sum -= res["score"]
+            cnt+=1
+
+    sum/=cnt
+    
+    label = "positive" if sum > 0.33 else ("negative" if sum < -0.33 else "neutral")    
+    confidence = 1.0-abs(sum) if label == "neutral" else abs(sum)
+
+    return {
+        "label": label,
+        "confidence": confidence
+    }
 
 @app.route("/financial_status/<stock>")
 def financial_status(stock):
