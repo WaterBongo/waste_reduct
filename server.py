@@ -63,24 +63,34 @@ def stock(stock):
 
 @app.route("/news/<company>")
 def news(company):
-    data = requests.get(f'https://newsapi.org/v2/everything?q={company}&from=2024-03-07&sortBy=publishedAt&apiKey=6900242d44ec47839ca83eb1a31f32dd&language=en')
-    
+    data = requests.get(f'https://newsapi.org/v2/everything?q={company}+finance&searchIn=title,description&from=2024-03-07&sortBy=relevancy&apiKey=6900242d44ec47839ca83eb1a31f32dd&language=en').json()
+
     descriptions = []
     for i in data['articles']:
         if not (i["description"] == "[Removed]" or i["description"] == None):
-            descriptions.append(i["description"])
+            descriptions.append(i["title"])
     
-    results = pipe(descriptions)
     sum = 0
     cnt = 0
-    for res in results:
-        if res["label"] == "positive":
-            sum += res["score"]
-            cnt+=1
-        elif res["label"] == "negative":
-            sum -= res["score"]
-            cnt+=1
+    for desc in descriptions[:20]:
+        try:
+            res = pipe(desc)[0]
+            
+            if res["label"] == "positive":
+                sum += res["score"]
+                cnt+=1
+            elif res["label"] == "negative":
+                sum -= res["score"]
+                cnt+=1
+        except Exception as e:
+            pass
 
+    if cnt == 0:
+        return {
+            "label": "positive",
+            "confidence": 0.0
+        }
+        
     sum/=cnt
     
     label = "positive" if sum >= 0.0 else "negative"    
