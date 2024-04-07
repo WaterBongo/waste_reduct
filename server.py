@@ -4,6 +4,7 @@ from alpha_vantage.timeseries import TimeSeries
 from alpha_vantage.timeseries import TimeSeries
 import datetime,requests
 from openai import OpenAI
+import json
 
 app = Flask(__name__)
 info_used = {
@@ -96,10 +97,13 @@ def stability(company,app,nasaq):
 
     headers = {
     'Content-Type': 'application/x-www-form-urlencoded',}   
-    client = OpenAI(
-    # This is the default and can be omitted
-    api_key="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"
-    ,)
+    # Load API key from config.json
+    with open('config.json') as f:
+        config = json.load(f)
+        api_key = config['api_key']
+
+    # Create OpenAI client
+    client = OpenAI(api_key=api_key)
     chat_completion = client.chat.completions.create(
     messages=[
         {
