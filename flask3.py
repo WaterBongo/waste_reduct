@@ -1,10 +1,14 @@
 from flask import Flask
+import requests
 from flask import request
 app = Flask(__name__)
 amazing_db = {}
-@app.route('/gatodb',methods=['POST','GET'])
+@app.route("/")
+def helll():
+    return "hello, world!"
+@app.route('/gatodb',methods=['POST'])
 def hello():
-    if request.method == 'GET':
+    if request.method == 'POST':
         data = request.json
         print(data)
         name = data['name']
@@ -12,7 +16,10 @@ def hello():
             amazing_db[name] = data
         print(amazing_db)
         return 'Hello, World!'
-    else:
-        return 'Hello, World!'
+
+@app.route('/get/<name>')
+def get(name):
+    return amazing_db[name]
 if __name__ == '__main__':
     app.run('0.0.0.0',port=8052)
+

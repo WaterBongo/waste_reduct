@@ -3,14 +3,13 @@ from flask import request
 from alpha_vantage.timeseries import TimeSeries
 from alpha_vantage.timeseries import TimeSeries
 import datetime,requests
-from transformers import pipeline
+from openai import OpenAI
 
 app = Flask(__name__)
 info_used = {
 }
 
-pipe = pipeline("text-classification", model="mr8488/distilroberta-finetuned-financial-news-sentiment-analysis-v2")
-
+ki_key = "0PQBYSB04H85Z6F0"
 
 # Financial data for the company
 # Calculation functions
@@ -32,11 +31,13 @@ def calculate_ebitda_margin(data):
 # Perform calculations
 
 # Simple interpretive logic
-
+@app.route("/")
+def home():
+    return "Hello, World!"
 @app.route("/stock/<stock>")
 def stock(stock):
 
-    ts = TimeSeries(key='QYKD6R0WT7S6G9WK', output_format='pandas')
+    ts = TimeSeries(key=ki_key, output_format='pandas')
 
     # Get daily historical data
     daily_data, meta_data = ts.get_daily(symbol=stock, outputsize='full')
@@ -63,37 +64,12 @@ def stock(stock):
 
 @app.route("/news/<company>")
 def news(company):
-    data = requests.get(f'https://newsapi.org/v2/everything?q={company}&from=2024-03-07&sortBy=publishedAt&apiKey=6900242d44ec47839ca83eb1a31f32dd&language=en')
-    
-    descriptions = []
-    for i in data['articles']:
-        if not (i["description"] == "[Removed]" or i["description"] == None):
-            descriptions.append(i["description"])
-    
-    results = pipe(descriptions)
-    sum = 0
-    cnt = 0
-    for res in results:
-        if res["label"] == "positive":
-            sum += res["score"]
-            cnt+=1
-        elif res["label"] == "negative":
-            sum -= res["score"]
-            cnt+=1
-
-    sum/=cnt
-    
-    label = "positive" if sum >= 0.0 else "negative"    
-    confidence = abs(sum)
-
-    return {
-        "label": label,
-        "confidence": confidence
-    }
+    realdata = requests.get(f'http://localhost:8052/cum/{company}').json()
+    return realdata
 
 @app.route("/financial_status/<stock>")
 def financial_status(stock):
-    url = f'https://www.alphavantage.co/query?function=INCOME_STATEMENT&symbol={stock}&apikey=DTO0T1HGHV8QY514'
+    url = f'https://www.alphavantage.co/query?function=INCOME_STATEMENT&symbol={stock}&apikey={ki_key}'
     r = requests.get(url)
     data = r.json()
     financial_data = data['annualReports'][0]
@@ -119,19 +95,28 @@ def financial_status(stock):
 
 @app.route("/product_stabilitiy/<company>/<app>/<nasaq>")
 def stability(company,app,nasaq):
-    he = '{\n  "model": "mistral",\n  "prompt":"'
 
-    company_overview = requests.get(f"https://www.alphavantage.co/query?function=OVERVIEW&symbol={nasaq}&apikey=CEC3IF1YRNN5ZXV5").json()['Description']
+    company_overview = requests.get(f"https://www.alphavantage.co/query?function=OVERVIEW&symbol={nasaq}&apikey={ki_key}").json()['Description']
     prompt = f'I currently work at {company}, the product i work on is {app}, do i have a stable position? a brief description of {company} {company_overview} response in a json where one key is stability and the value is either true or false and another key called explnation and explain why or why not there is no job security'
 
-    he = he+prompt
-    he+='"\n,"stream":false }'
     headers = {
-    'Content-Type': 'application/x-www-form-urlencoded',
-}
-    response = requests.post('http://localhost:11434/api/generate', headers=headers, data=he)
-    return response.json()
+    'Content-Type': 'application/x-www-form-urlencoded',}   
+    client = OpenAI(
+    # This is the default and can be omitted
+    api_key="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"
+    ,)
+    chat_completion = client.chat.completions.create(
+    messages=[
+        {
+            "role": "user",
+            "content": prompt,
+        }
+    ],
+    model="gpt-4",
+    )
+    print(chat_completion.choices[0].message.content)
 
+    return chat_completion.choices[0].message.content
 
 if __name__ == '__main__':
     app.run('0.0.0.0',port=8080)

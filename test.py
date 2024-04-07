@@ -1,4 +1,4 @@
 import requests
-
-r =requests.get("http://localhost:8080/product_stabilitiy/apple/iphone").json()
-print(r)
+print("hi")
+r =requests.get("http://localhost:8080/product_stabilitiy/google/app_management/GOOG")
+print(r.text)
