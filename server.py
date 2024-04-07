@@ -83,8 +83,8 @@ def news(company):
 
     sum/=cnt
     
-    label = "positive" if sum > 0.33 else ("negative" if sum < -0.33 else "neutral")    
-    confidence = 1.0-abs(sum) if label == "neutral" else abs(sum)
+    label = "positive" if sum >= 0.0 else "negative"    
+    confidence = abs(sum)
 
     return {
         "label": label,
