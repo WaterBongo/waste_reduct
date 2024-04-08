@@ -10,7 +10,7 @@ app = Flask(__name__)
 info_used = {
 }
 
-ki_key = "DTQAY86C3FCT0343"
+ki_key = "JK3GDTUE8IDUC1FD"
 
 # Financial data for the company
 # Calculation functions
@@ -100,7 +100,7 @@ def stability(company,app,nasaq):
     # Load API key from config.json
     with open('config.json') as f:
         config = json.load(f)
-        api_key = config['api_key']
+        api_key = config['api']
 
     # Create OpenAI client
     client = OpenAI(api_key=api_key)
